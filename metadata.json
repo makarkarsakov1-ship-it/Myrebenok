@@ -1,0 +1,6 @@
+{
+  "name": "Мой Ребёнок",
+  "description": "Приложение для отслеживания здоровья, развития и медицинской истории вашего ребенка.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
