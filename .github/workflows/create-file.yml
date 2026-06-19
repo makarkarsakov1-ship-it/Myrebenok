@@ -1,0 +1,35 @@
+name: Create File on GitHub
+
+on:
+  workflow_dispatch:
+    inputs:
+      filename:
+        description: 'Name of the file to create'
+        required: true
+        default: 'new-file.txt'
+      content:
+        description: 'Content of the file'
+        required: true
+        default: 'Hello from GitHub Actions!'
+
+permissions:
+  contents: write
+
+jobs:
+  create-file:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Create File
+        run: |
+          echo "${{ github.event.inputs.content }}" > "${{ github.event.inputs.filename }}"
+
+      - name: Commit and Push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add "${{ github.event.inputs.filename }}"
+          git commit -m "docs: auto-created file via workflow (${{ github.event.inputs.filename }})"
+          git push
