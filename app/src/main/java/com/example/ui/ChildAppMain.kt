@@ -43,10 +43,10 @@ import com.example.data.*
 import java.text.SimpleDateFormat
 import java.util.*
 
-// Dynamic custom visual shades matching user's pinkish-orange baby theme
-val CoralRed = Color(0xFFFF5252)
-val SoftPeach = Color(0xFFFFECEF)
-val WarmSand = Color(0xFFFAF6F0)
+// Clean Minimalism Design Theme - Material 3 Palette
+val CoralRed = Color(0xFF6750A4)     // Clean Minimalist M3 Royal Violet/Indigo
+val SoftPeach = Color(0xFFEADDFF)    // Clean Minimalist M3 Soft Lavender highlight
+val WarmSand = Color(0xFFF7F2FA)     // Clean Minimalist M3 Slate Lavender-gray background
 
 val DarkGrayBackground = Color(0xFF121212)
 val DarkSurfaceCard = Color(0xFF1E1E1E)
@@ -553,44 +553,89 @@ fun HomeDashboardScreen(viewModel: AppViewModel, navController: NavHostControlle
             .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {
-        // Header with Kid Selector
+        // Header with Kid Selector & App Branding
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Column {
+            if (currentChild != null) {
+                // Sleek Profile Selection Pill (from Design HTML style)
+                Row(
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .background(SoftPeach)
+                        .clickable { navController.navigate("profile") }
+                        .padding(start = 5.dp, end = 16.dp, top = 5.dp, bottom = 5.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    // Kid Initials Avatar
+                    Box(
+                        modifier = Modifier
+                            .size(36.dp)
+                            .clip(CircleShape)
+                            .background(CoralRed)
+                            .border(2.dp, Color.White, CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = currentChild!!.name.take(1).uppercase(),
+                            fontWeight = FontWeight.ExtraBold,
+                            color = Color.White,
+                            fontSize = 14.sp
+                        )
+                    }
+                    Column {
+                        Text(
+                            text = currentChild!!.name,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 13.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            text = getAgeString(currentChild!!.dateOfBirth, language),
+                            fontSize = 10.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                        )
+                    }
+                    Icon(
+                        imageVector = Icons.Default.ArrowDropDown,
+                        contentDescription = "Select Kid",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(16.dp)
+                    )
+                }
+            } else {
                 Text(
                     text = Translations.get(language, "app_title"),
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 24.sp,
                     color = CoralRed
                 )
-                Text(
-                    text = if (currentChild != null) "${currentChild?.name}, ${getAgeString(currentChild!!.dateOfBirth, language)}" else Translations.get(language, "no_children"),
-                    fontSize = 14.sp,
-                    color = Color.Gray
-                )
             }
 
-            // Quick child switches
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            // Quick alternative child switcher & profile management action
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
                 if (childrenList.size > 1) {
-                    childrenList.forEach { kid ->
+                    childrenList.filter { it.id != selectedChildId }.take(2).forEach { kid ->
                         Box(
                             modifier = Modifier
-                                .padding(horizontal = 4.dp)
-                                .size(36.dp)
+                                .size(34.dp)
                                 .clip(CircleShape)
-                                .background(if (selectedChildId == kid.id) CoralRed else Color.LightGray)
+                                .background(MaterialTheme.colorScheme.surfaceVariant)
+                                .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape)
                                 .clickable { viewModel.selectChild(kid.id) },
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
                                 text = kid.name.take(1).uppercase(),
                                 fontWeight = FontWeight.Bold,
-                                color = Color.White,
-                                fontSize = 14.sp
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                fontSize = 12.sp
                             )
                         }
                     }
@@ -598,9 +643,16 @@ fun HomeDashboardScreen(viewModel: AppViewModel, navController: NavHostControlle
 
                 IconButton(
                     onClick = { navController.navigate("profile") },
-                    modifier = Modifier.testTag("add_kid_button")
+                    modifier = Modifier
+                        .size(36.dp)
+                        .testTag("add_kid_button")
                 ) {
-                    Icon(Icons.Default.Add, "Add/Edit profile", tint = CoralRed)
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Add/Edit profile",
+                        tint = CoralRed,
+                        modifier = Modifier.size(20.dp)
+                    )
                 }
             }
         }
@@ -645,210 +697,375 @@ fun HomeDashboardScreen(viewModel: AppViewModel, navController: NavHostControlle
             return
         }
 
-        // QUICK METRICS & EMERGENCY CARD EXPOSE
+        // 1. EMERGENCY SOS CARD (Full width high-emphasis minimalist alert from Design HTML)
+        Card(
+            colors = CardDefaults.cardColors(containerColor = Color(0xFFF2B8B5)),
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { navController.navigate("emergency") },
+            shape = RoundedCornerShape(24.dp),
+            border = BorderStroke(1.dp, Color(0xFF8C1D18).copy(alpha = 0.15f))
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(38.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(Color(0xFF8C1D18)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Warning,
+                            contentDescription = "Emergency SOS",
+                            tint = Color.White,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                    Column {
+                        Text(
+                            text = Translations.get(language, "emergency_card"),
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF601410),
+                            fontSize = 15.sp
+                        )
+                        val allergiesStr = currentChild!!.allergies.ifBlank { "Нет аллергии / No allergies" }
+                        val bloodGroupStr = currentChild!!.bloodGroup.ifBlank { "Не указана / Not set" }
+                        Text(
+                            text = "$allergiesStr, Группа: $bloodGroupStr",
+                            color = Color(0xFF601410).copy(alpha = 0.75f),
+                            fontSize = 11.sp,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                }
+                Icon(
+                    imageVector = Icons.Default.ChevronRight,
+                    contentDescription = "Open SOS details",
+                    tint = Color(0xFF601410),
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // 2. HEALTH & DEVELOPMENT DASHBOARD CARD (Polished HTML visual element)
+        Card(
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+            shape = RoundedCornerShape(24.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { navController.navigate("development") },
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
+        ) {
+            Column(modifier = Modifier.padding(20.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.Top
+                ) {
+                    Column {
+                        Text(
+                            text = Translations.get(language, "growth_weight"),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Text(
+                            text = "Последнее измерение: ${currentChild?.weight ?: 0f} кг / ${currentChild?.height ?: 0f} см",
+                            fontSize = 11.sp,
+                            color = Color.Gray,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                    // PREMIUM Tag Badge
+                    Box(
+                        modifier = Modifier
+                            .clip(CircleShape)
+                            .background(SoftPeach)
+                            .padding(horizontal = 10.dp, vertical = 4.dp)
+                    ) {
+                        Text(
+                            text = "PREMIUM",
+                            fontSize = 9.sp,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = CoralRed
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Elegant Visual Bar Chart Simulator from HTML Design Draft
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(96.dp)
+                        .padding(horizontal = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    verticalAlignment = Alignment.Bottom
+                ) {
+                    // Height Bar
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Bottom
+                    ) {
+                        val currentHeight = currentChild?.height ?: 0f
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(60.dp)
+                                .clip(RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp))
+                                .background(SoftPeach)
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text("${currentHeight} см", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                    }
+
+                    // Weight Bar
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Bottom
+                    ) {
+                        val currentWeight = currentChild?.weight ?: 0f
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(85.dp)
+                                .clip(RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp))
+                                .background(CoralRed)
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text("${currentWeight} кг", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                    }
+
+                    // Standard Reference Norm Bar
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Bottom
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(100.dp)
+                                .clip(RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp))
+                                .background(SoftPeach.copy(alpha = 0.4f))
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text("Норма", fontSize = 11.sp, color = Color.Gray)
+                    }
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // 3. QUICK ACTIONS GRID (Material Design 3 Clean Minimal Grid side-by-side)
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            ElevatedCard(
-                colors = CardDefaults.cardColors(containerColor = CoralRed),
+            // First Grid Card: Vaccinations
+            val nextVaccines = vaccinations.filter { !it.isCompleted }.take(1)
+            Card(
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFFEF7FF)),
                 modifier = Modifier
                     .weight(1f)
-                    .clickable { navController.navigate("emergency") },
-                shape = RoundedCornerShape(16.dp)
+                    .clickable { navController.navigate("vaccines") },
+                shape = RoundedCornerShape(20.dp),
+                border = BorderStroke(1.dp, Color(0xFFCAC4D0).copy(alpha = 0.5f))
             ) {
-                Column(modifier = Modifier.padding(12.dp)) {
-                    Icon(Icons.Default.Warning, "Emergency", tint = Color.White)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = Translations.get(language, "emergency_card"),
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White,
-                        fontSize = 14.sp
-                    )
-                    Text("Быстрый доступ", color = Color.White.copy(alpha = 0.8f), fontSize = 11.sp)
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(36.dp)
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(SoftPeach),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.MedicalServices,
+                            contentDescription = "Vaccines",
+                            tint = CoralRed,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                    Column {
+                        Text(
+                            text = Translations.get(language, "near_vaccine"),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        val vSub = if (nextVaccines.isNotEmpty()) {
+                            val v = nextVaccines.first()
+                            if (language == "RU" || language == "UA") v.vaccineNameRu else v.vaccineNameEn
+                        } else {
+                            "Все сделано / Done"
+                        }
+                        Text(
+                            text = vSub,
+                            fontSize = 11.sp,
+                            color = Color.Gray,
+                            fontWeight = FontWeight.Medium,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
                 }
             }
 
-            ElevatedCard(
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+            // Second Grid Card: Reminders
+            val activeReminders = reminders.filter { !it.isCompleted }
+            Card(
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFFEF7FF)),
                 modifier = Modifier
                     .weight(1f)
-                    .clickable { navController.navigate("development") },
-                shape = RoundedCornerShape(16.dp)
+                    .clickable { navController.navigate("reminders") },
+                shape = RoundedCornerShape(20.dp),
+                border = BorderStroke(1.dp, Color(0xFFCAC4D0).copy(alpha = 0.5f))
             ) {
-                Column(modifier = Modifier.padding(12.dp)) {
-                    Icon(Icons.Default.TrendingUp, "Development", tint = CoralRed)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = Translations.get(language, "growth_weight"),
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp
-                    )
-                    Text(
-                        text = "${currentChild?.weight} кг / ${currentChild?.height} см",
-                        fontSize = 12.sp,
-                        color = Color.Gray
-                    )
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(36.dp)
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(SoftPeach),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Alarm,
+                            contentDescription = "Reminders",
+                            tint = CoralRed,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                    Column {
+                        Text(
+                            text = Translations.get(language, "active_reminders"),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        val rSub = if (activeReminders.isNotEmpty()) {
+                            activeReminders.first().title
+                        } else {
+                            "Нет активных / None"
+                        }
+                        Text(
+                            text = rSub,
+                            fontSize = 11.sp,
+                            color = Color.Gray,
+                            fontWeight = FontWeight.Medium,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
                 }
             }
         }
 
+        // 4. HEALTH DIARY COMPACT (Polished Minimalist Chronicle Card)
         Spacer(modifier = Modifier.height(16.dp))
-
-        // NEAREST VACCINE ALERTS
         Card(
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-            shape = RoundedCornerShape(16.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 4.dp)
+            shape = RoundedCornerShape(24.dp),
+            modifier = Modifier.fillMaxWidth(),
+            border = BorderStroke(1.dp, Color(0xFF79747E).copy(alpha = 0.15f))
         ) {
-            val nextVaccines = vaccinations.filter { !it.isCompleted }.take(1)
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { navController.navigate("vaccines") }
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(44.dp)
-                        .clip(CircleShape)
-                        .background(SoftPeach),
-                    contentAlignment = Alignment.Center
+            Column(modifier = Modifier.padding(20.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(Icons.Default.MedicalServices, "vaccine", tint = CoralRed)
-                }
-                Spacer(modifier = Modifier.width(16.dp))
-                Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = Translations.get(language, "near_vaccine"),
+                        text = Translations.get(language, "recent_records"),
                         fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp
+                        fontSize = 15.sp,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
-                    if (nextVaccines.isNotEmpty()) {
-                        val v = nextVaccines.first()
-                        val vName = if (language == "RU" || language == "UA") v.vaccineNameRu else v.vaccineNameEn
-                        Text("$vName (${Translations.get(language, "status_planned")})", fontSize = 12.sp, color = Color.DarkGray)
-                    } else {
-                        Text("Нет ближайших прививок / None planned", fontSize = 12.sp, color = Color.Gray)
-                    }
-                }
-                Icon(Icons.Default.ChevronRight, "View vaccine list", tint = Color.Gray)
-            }
-        }
-
-        // REMINDERS BLOCK
-        Spacer(modifier = Modifier.height(16.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                Translations.get(language, "active_reminders"),
-                fontWeight = FontWeight.Bold,
-                fontSize = 16.sp
-            )
-            TextButton(onClick = { navController.navigate("reminders") }) {
-                Text("Все / Manage", color = CoralRed)
-            }
-        }
-
-        val activeReminders = reminders.filter { !it.isCompleted }
-        if (activeReminders.isEmpty()) {
-            Text(
-                "Нет активных напоминаний / No active reminders",
-                fontSize = 13.sp,
-                color = Color.Gray,
-                modifier = Modifier.padding(vertical = 8.dp)
-            )
-        } else {
-            activeReminders.take(3).forEach { r ->
-                Card(
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(12.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
+                    TextButton(
+                        onClick = { navController.navigate("diary") },
+                        contentPadding = PaddingValues(0.dp)
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            val rIcon = when (r.type) {
-                                "medicine" -> Icons.Default.MedicalServices
-                                "vaccine" -> Icons.Default.DateRange
-                                "doctor" -> Icons.Default.Person
-                                else -> Icons.Default.Description
-                            }
-                            Icon(rIcon, "reminder type", tint = CoralRed, modifier = Modifier.size(20.dp))
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Column {
-                                Text(r.title, fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
-                                Text(formatTime(r.dateTimeMillis), fontSize = 11.sp, color = Color.Gray)
-                            }
-                        }
-                        IconButton(onClick = { viewModel.toggleReminderCompleted(r) }) {
-                            Icon(Icons.Default.Check, "Done", tint = Color.Green)
-                        }
+                        Text(
+                            text = "Смотреть всё",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 12.sp,
+                            color = CoralRed
+                        )
                     }
                 }
-            }
-        }
 
-        // HEALTH DIARY COMPACT
-        Spacer(modifier = Modifier.height(16.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                Translations.get(language, "recent_records"),
-                fontWeight = FontWeight.Bold,
-                fontSize = 16.sp
-            )
-            TextButton(onClick = { navController.navigate("diary") }) {
-                Text("Весь дневник / All logs", color = CoralRed)
-            }
-        }
+                Spacer(modifier = Modifier.height(8.dp))
 
-        if (diaries.isEmpty()) {
-            Text(
-                "Дневник пуст. Добавьте первую запись / Diary is empty",
-                fontSize = 13.sp,
-                color = Color.Gray,
-                modifier = Modifier.padding(vertical = 8.dp)
-            )
-        } else {
-            diaries.take(2).forEach { entry ->
-                Card(
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Column(modifier = Modifier.padding(12.dp)) {
+                if (diaries.isEmpty()) {
+                    Text(
+                        text = "Дневник пуст. Добавьте первую запись / Diary is empty",
+                        fontSize = 12.sp,
+                        color = Color.Gray,
+                        modifier = Modifier.padding(vertical = 12.dp)
+                    )
+                } else {
+                    diaries.take(2).forEachIndexed { index, entry ->
+                        if (index > 0) {
+                            HorizontalDivider(
+                                color = Color(0xFFF7F2FA),
+                                modifier = Modifier.padding(vertical = 10.dp)
+                            )
+                        }
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
-                            Text(formatDate(entry.dateMillis), fontWeight = FontWeight.Bold, fontSize = 12.sp, color = CoralRed)
-                            Text("${entry.temperature}°C", fontWeight = FontWeight.Bold, fontSize = 12.sp)
-                        }
-                        if (entry.symptoms.isNotEmpty()) {
-                            Text("Симптомы: ${entry.symptoms}", fontSize = 12.sp, color = Color.Gray)
-                        }
-                        if (entry.notes.isNotEmpty()) {
-                            Text(entry.notes, fontSize = 12.sp)
+                            // Date/Time indicator
+                            Text(
+                                text = formatDate(entry.dateMillis),
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 11.sp,
+                                color = Color.Gray,
+                                modifier = Modifier.width(64.dp)
+                            )
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "Температура: ${entry.temperature}°C",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 13.sp,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                if (entry.notes.isNotEmpty()) {
+                                    Text(
+                                        text = entry.notes,
+                                        fontSize = 12.sp,
+                                        color = Color.Gray,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                }
+                            }
                         }
                     }
                 }
